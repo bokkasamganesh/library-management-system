@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Books - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="search-box">
+            <h3 class="mb-3"><i class="fas fa-search"></i> Search Books</h3>
+            <form method="get" class="row">
+                <div class="col-md-10">
+                    <input type="text" name="q" class="form-control form-control-lg" 
+                           placeholder="Search by title, author, ISBN, or category..." 
+                           value="{{ query }}" autofocus>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if query %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <h4>Search Results for "{{ query }}"</h4>
+            {% if books %}
+                <p class="text-muted">Found {{ books|length }} book{{ books|length|pluralize }}</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if books %}
+    <div class="row">
+        {% for book in books %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" 
+                         style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                         style="height: 200px;">
+                        <i class="fas fa-book fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text text-muted">by {{ book.author }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-tag"></i> {{ book.category.name }}<br>
+                            <i class="fas fa-file"></i> {{ book.pages }} pages<br>
+                            <i class="fas fa-copy"></i> {{ book.available_copies }} available
+                        </small>
+                    </p>
+                    <p class="card-text flex-grow-1">{{ book.description|truncatewords:15 }}</p>
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'books:detail' book.pk %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        
+                        {% if user.user_type == 'student' and book.is_available %}
+                            <form method="post" action="{% url 'books:request' book.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus-circle"></i> Request
+                                </button>
+                            </form>
+                        {% elif not book.is_available %}
+                            <span class="badge bg-danger">Not Available</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Search results pagination">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center">
+        <i class="fas fa-search fa-5x text-muted mb-3"></i>
+        <h4>No books found</h4>
+        <p class="text-muted">Try different search terms or browse all books.</p>
+        <a href="{% url 'books:list' %}" class="btn btn-primary">
+            <i class="fas fa-book-open"></i> Browse All Books
+        </a>
+    </div>
+    {% endif %}
+{% else %}
+<div class="text-center">
+    <i class="fas fa-search fa-5x text-muted mb-3"></i>
+    <h4>Enter search terms above</h4>
+    <p class="text-muted">Search for books by title, author, ISBN, or category.</p>
+</div>
+{% endif %}
+{% endblock %}

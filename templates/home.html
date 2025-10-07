@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Library Management System{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5 mb-5 rounded">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">
+            <i class="fas fa-book-reader"></i> 
+            Welcome to Library Management System
+        </h1>
+        <p class="lead mb-4">
+            Your gateway to thousands of books and resources. 
+            Search, request, and manage your reading journey with ease.
+        </p>
+        
+        {% if not user.is_authenticated %}
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-lg">
+                        <div class="card-body text-dark">
+                            <h3 class="card-title mb-4">Get Started</h3>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <a href="{% url 'register' %}" class="btn btn-success btn-lg w-100">
+                                        <i class="fas fa-user-plus"></i><br>
+                                        Register as Student
+                                    </a>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-sign-in-alt"></i><br>
+                                        Student Login
+                                    </a>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <a href="{% url 'admin_login' %}" class="btn btn-warning btn-lg w-100">
+                                        <i class="fas fa-user-shield"></i><br>
+                                        Admin Login
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                <h4>Search Books</h4>
+                <p class="text-muted">
+                    Find books by title, author, ISBN, or category. 
+                    Our comprehensive database has thousands of resources.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-file-alt fa-3x text-success mb-3"></i>
+                <h4>Request Books</h4>
+                <p class="text-muted">
+                    Request books online and get approval notifications. 
+                    Track your requests and manage your reading list.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h4>Track Due Dates</h4>
+                <p class="text-muted">
+                    Never miss a return date. Get reminders and 
+                    manage your borrowed books efficiently.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-info-circle"></i> System Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>For Students:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Register with your details</li>
+                            <li><i class="fas fa-check text-success"></i> Get unique Student ID automatically</li>
+                            <li><i class="fas fa-check text-success"></i> Search and request books</li>
+                            <li><i class="fas fa-check text-success"></i> Track your transactions</li>
+                            <li><i class="fas fa-check text-success"></i> Return books online</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>For Administrators:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Manage book inventory</li>
+                            <li><i class="fas fa-check text-success"></i> Approve/reject book requests</li>
+                            <li><i class="fas fa-check text-success"></i> Monitor transactions</li>
+                            <li><i class="fas fa-check text-success"></i> Generate reports</li>
+                            <li><i class="fas fa-check text-success"></i> Manage student accounts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

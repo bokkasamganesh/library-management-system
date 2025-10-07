@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}My Transactions - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="fas fa-exchange-alt"></i> My Transactions</h2>
+    </div>
+</div>
+
+{% if transactions %}
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Type</th>
+                        <th>Transaction Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'books:detail' transaction.book.pk %}">
+                                {{ transaction.book.title }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if transaction.transaction_type == 'issue' %}
+                                <span class="badge bg-primary">Issue</span>
+                            {% elif transaction.transaction_type == 'return' %}
+                                <span class="badge bg-success">Return</span>
+                            {% elif transaction.transaction_type == 'renew' %}
+                                <span class="badge bg-info">Renew</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.transaction_date|date:"M d, Y H:i" }}</td>
+                        <td>{{ transaction.due_date|date:"M d, Y"|default:"-" }}</td>
+                        <td>{{ transaction.return_date|date:"M d, Y"|default:"-" }}</td>
+                        <td>
+                            {% if transaction.fine_amount > 0 %}
+                                <span class="text-danger">${{ transaction.fine_amount }}</span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="My transactions pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">&laquo; First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+        {% endif %}
+        
+        <li class="page-item active">
+            <span class="page-link">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+        </li>
+        
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center">
+    <i class="fas fa-exchange-alt fa-5x text-muted mb-3"></i>
+    <h4>No transactions yet</h4>
+    <p class="text-muted">You haven't made any transactions yet.</p>
+    <a href="{% url 'books:list' %}" class="btn btn-primary">
+        <i class="fas fa-search"></i> Browse Books
+    </a>
+</div>
+{% endif %}
+{% endblock %}

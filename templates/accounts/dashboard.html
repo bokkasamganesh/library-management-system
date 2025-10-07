@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-tachometer-alt"></i> 
+                    {% if user.user_type == 'admin' %}Admin{% else %}Student{% endif %} Dashboard
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Welcome, {{ user.full_name|default:user.username }}!</h5>
+                        {% if user.user_type == 'student' %}
+                            <p class="text-muted">Student ID: <strong>{{ user.student_id }}</strong></p>
+                        {% endif %}
+                        <p>Last login: {{ user.last_login|date:"M d, Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if user.user_type == 'admin' %}
+                            <span class="badge bg-warning fs-6">Administrator</span>
+                        {% else %}
+                            <span class="badge bg-success fs-6">Student</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.user_type == 'student' %}
+<!-- Student Dashboard -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Pending Requests
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_requests }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Approved Books
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ approved_requests }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Quick Actions
+                        </div>
+                        <a href="{% url 'books:search' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i> Search Books
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_transactions %}
+                                <tr>
+                                    <td>{{ transaction.book.title }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if transaction.transaction_type == 'issue' %}primary{% elif transaction.transaction_type == 'return' %}success{% else %}info{% endif %}">
+                                            {{ transaction.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ transaction.transaction_date|date:"M d, Y" }}</td>
+                                    <td>{{ transaction.due_date|date:"M d, Y"|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <a href="{% url 'transactions:my_transactions' %}" class="btn btn-outline-primary">
+                            View All Transactions
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No transactions yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif user.user_type == 'admin' %}
+<!-- Admin Dashboard -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending Requests
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_requests }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card shadow h-100 border-left-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Quick Actions
+                        </div>
+                        <a href="{% url 'books:add' %}" class="btn btn-success btn-sm">
+                            <i class="fas fa-plus"></i> Add Book
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-cog fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Book Requests</h6>
+            </div>
+            <div class="card-body">
+                {% if recent_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Book</th>
+                                    <th>Request Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in recent_requests %}
+                                <tr>
+                                    <td>{{ request.student.full_name }}</td>
+                                    <td>{{ request.book.title }}</td>
+                                    <td>{{ request.request_date|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <form method="post" action="{% url 'books:approve_request' request.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{% url 'books:reject_request' request.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <a href="{% url 'books:requests' %}" class="btn btn-outline-primary">
+                            View All Requests
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No pending requests.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

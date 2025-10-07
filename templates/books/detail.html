@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" 
+                     style="height: 400px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                     style="height: 400px;">
+                    <i class="fas fa-book fa-5x text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h3 class="mb-0">{{ book.title }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Author:</strong></div>
+                    <div class="col-sm-9">{{ book.author }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>ISBN:</strong></div>
+                    <div class="col-sm-9">{{ book.isbn }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Category:</strong></div>
+                    <div class="col-sm-9">
+                        <span class="badge bg-primary">{{ book.category.name }}</span>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Publisher:</strong></div>
+                    <div class="col-sm-9">{{ book.publisher }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Pages:</strong></div>
+                    <div class="col-sm-9">{{ book.pages }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Publication Date:</strong></div>
+                    <div class="col-sm-9">{{ book.publication_date|date:"M d, Y" }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Availability:</strong></div>
+                    <div class="col-sm-9">
+                        {% if book.is_available %}
+                            <span class="badge bg-success">Available ({{ book.available_copies }} copies)</span>
+                        {% else %}
+                            <span class="badge bg-danger">Not Available</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Description:</strong></div>
+                    <div class="col-sm-9">{{ book.description }}</div>
+                </div>
+                
+                {% if book.pdf_file %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>PDF:</strong></div>
+                    <div class="col-sm-9">
+                        <a href="{{ book.pdf_file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-file-pdf"></i> View PDF
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Added On:</strong></div>
+                    <div class="col-sm-9">{{ book.created_at|date:"M d, Y" }}</div>
+                </div>
+                
+                <hr>
+                
+                {% if user.user_type == 'student' %}
+                    {% if existing_request %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            You have already requested this book. 
+                            Status: <strong>{{ existing_request.get_status_display }}</strong>
+                            {% if existing_request.status == 'approved' %}
+                                <br>Due Date: {{ existing_request.due_date|date:"M d, Y" }}
+                            {% endif %}
+                        </div>
+                        
+                        {% if existing_request.status == 'approved' %}
+                            <form method="post" action="{% url 'books:return' existing_request.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning" 
+                                        onclick="return confirm('Are you sure you want to return this book?')">
+                                    <i class="fas fa-undo"></i> Return Book
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% elif book.is_available %}
+                        <form method="post" action="{% url 'books:request' book.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i> Request This Book
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            This book is currently not available.
+                        </div>
+                    {% endif %}
+                {% endif %}
+                
+                <a href="{% url 'books:list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Books
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
